@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gimme Song!!</title>
+  <link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+<body>
+  <h1 id="app-title">
+    <img src="/static/emojis/headphone_1f3a7.png" alt="🎧" class="emoji">
+    Gimme Song!!
+    <img src="/static/emojis/rock.png" alt="🤘🏻" class="emoji">
+    <img src="/static/emojis/fox.png" alt="🦊" class="emoji">
+  </h1>
+
+  <div class="container">
+    <div class="left">
+      <img id="cover" src="" alt="Album Cover">   
+      <h1 id="artist">ARTIST</h1>   
+      <h3 id="album">ALBUM</h3>
+    </div>
+
+    <div class="right">
+      <div class="progress-container">
+        <div id="progress-bar"><div id="bar"></div></div>
+        <span id="time">0:00 / 0:00</span>
+      </div>
+      <h2 id="title">SONG TITLE</h2>
+
+    </div>
+  </div>
+
+
+</div>
+
+
+
+  <script>
+    let progress = 0;
+    let duration = 1;
+    let isPlaying = false;
+
+    function fetchSong() {
+      fetch("http://localhost:5000/current-song")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status) {
+            isPlaying = false;
+            return;
+          }
+
+
+          document.getElementById("title").textContent = data.title;
+          document.getElementById("artist").textContent = data.artist;
+          document.getElementById("cover").src = data.image;
+          document.getElementById("album").textContent = data.album;
+
+
+          duration = data.duration_ms;
+          progress = data.progress_ms;
+          isPlaying = data.is_playing;
+
+
+          document.getElementById("time").textContent = ` ${data.progress_text} / ${data.duration_text}`;
+
+          updateProgress();
+          
+        });
+    }
+
+    function updateProgress() {
+      if (!isPlaying) return;
+
+      progress += 1000;
+      const percent = Math.min((progress / duration) * 100, 100);
+      document.getElementById("bar").style.width = percent + "%";
+
+      const mins = Math.floor(progress / 60000);
+      const secs = Math.floor((progress % 60000) / 1000);
+      const totalMins = Math.floor(duration / 60000);
+      const totalSecs = Math.floor((duration % 60000) / 1000);
+
+      const current = `${mins}:${secs.toString().padStart(2, '0')}`;
+      const total = `${totalMins}:${totalSecs.toString().padStart(2, '0')}`;
+
+      document.getElementById("time").textContent = `${current} / ${total}`;
+    }
+
+
+    fetchSong();
+    setInterval(fetchSong, 5000);
+    setInterval(updateProgress, 1000);
+  </script>
+</body>
+</html>
