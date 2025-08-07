@@ -3,6 +3,8 @@ from app import app
 from app.services.spotify_service import get_spotify_data, init_spotify
 import spotipy
 from flask import request
+from flask import render_template
+
 
 sp_oauth, token_info = init_spotify()
 
@@ -39,3 +41,7 @@ def current_song():
 
     # Si no se está reproduciendo nada, igual devuelvo los últimos datos conocidos
     return jsonify(spotify_data)
+
+@app.route("/minimal")
+def minimal():
+    return render_template("minimal.html")

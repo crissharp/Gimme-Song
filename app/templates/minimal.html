@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gimme Song!! - Minimal</title>
+  <link rel="stylesheet" href="/static/css/minimal.css">
+</head>
+<body>
+  <div class="container" style="flex-direction: column; align-items: center; text-align: center;">
+    <h1 id="title">SONG TITLE</h1>
+    <img id="cover" src="" alt="Album Cover">    
+    <h2 id="artist">ARTIST</h2>
+    <h3 id="album">ALBUM</h3>
+  </div>
+
+  <script>
+    function fetchSong() {
+      fetch("http://localhost:5000/current-song")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status) return;
+
+          document.getElementById("title").textContent = data.title;
+          document.getElementById("artist").textContent = data.artist;
+          document.getElementById("album").textContent = data.album;
+          document.getElementById("cover").src = data.image;
+        });
+    }
+
+    fetchSong();
+    setInterval(fetchSong, 5000);
+  </script>
+</body>
+</html>
