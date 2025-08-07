@@ -1,9 +1,8 @@
 from flask import request, jsonify, redirect, send_from_directory
 from app import app
 from app.services.spotify_service import get_spotify_data, init_spotify
-from app.services.youtube_service import get_youtube_data
 import spotipy
-
+from flask import request
 
 sp_oauth, token_info = init_spotify()
 
@@ -27,23 +26,16 @@ def callback():
 
 @app.route("/current-song")
 def current_song():
-    global token_info, last_platform
+    global token_info
     sp = spotipy.Spotify(auth=token_info["access_token"])
 
     spotify_data = get_spotify_data(sp, sp_oauth, token_info)
+
     if spotify_data and spotify_data.get("is_playing"):
-        last_platform = "spotify"
         spotify_data["source"] = "spotify"
         return jsonify(spotify_data)
+    
+    
 
-    youtube_data = get_youtube_data()
-    if youtube_data and youtube_data.get("is_playing"):
-        last_platform = "youtube"
-        youtube_data["source"] = "youtube"
-        return jsonify(youtube_data)
-
-    # Si ninguna está activa, devuelvo la última conocida
-    if last_platform == "spotify":
-        return jsonify(spotify_data)
-    else:
-        return jsonify(youtube_data)
+    # Si no se está reproduciendo nada, igual devuelvo los últimos datos conocidos
+    return jsonify(spotify_data)

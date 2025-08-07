@@ -20,12 +20,17 @@ def get_spotify_data(sp, sp_oauth, token_info):
         sp = spotipy.Spotify(auth=token_info["access_token"])
 
     playback = sp.current_playback()
-    if not playback or not playback.get("item") or not playback.get("is_playing", False):
+    if not playback or not playback.get("item"):
         return None
 
     item = playback["item"]
     duration_ms = item["duration_ms"]
-    progress_ms = playback["progress_ms"]
+    progress_ms = playback.get("progress_ms", 0)
+    is_playing = playback.get("is_playing", False)
+
+    # Convertimos el progreso solo una vez al estado actual
+    progress_text = ms_to_min_sec(progress_ms)
+    duration_text = ms_to_min_sec(duration_ms)
 
     return {
         "title": item["name"],
@@ -34,7 +39,8 @@ def get_spotify_data(sp, sp_oauth, token_info):
         "image": item["album"]["images"][0]["url"],
         "progress_ms": progress_ms,
         "duration_ms": duration_ms,
-        "progress_text": ms_to_min_sec(progress_ms),
-        "duration_text": ms_to_min_sec(duration_ms),
-        "is_playing": playback.get("is_playing", False)
+        "progress_text": progress_text,
+        "duration_text": duration_text,
+        "is_playing": is_playing
     }
+
